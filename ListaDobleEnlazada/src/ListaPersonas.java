@@ -95,30 +95,20 @@ public class ListaPersonas {
 	 * @param pos
 	 * @return
 	 */
-	public void obtenerDePosicion (int pos) {
-        if (pos <= tamaño())    {
-            String persona;
+	public Persona obtenerDePosicion (int pos) {
+		Persona persona = null;
+        if (pos <= tamaño() && pos!=Utils.ENTERO_NULO)    {
             if (pos == 0) {
-                persona = "[" + nodoInicio.persona.getNombre() + " " + nodoInicio.persona.getApellido1() + ", "
-						+ nodoInicio.persona.getDni() + "] ";
+                persona = nodoInicio.persona;
             } else {
                 aux = nodoInicio;
                 for (int i = 1 ; i <= pos ; i++)
                     aux = aux.siguiente;
-                Nodo prox = aux.siguiente;
-                aux.siguiente = prox.siguiente;
-                Nodo sig=prox.siguiente;
-                if (sig!=null)
-                    sig.anterior=aux;
-                persona = "[" + prox.persona.getNombre() + " " + prox.persona.getApellido1() + ", "
-						+ prox.persona.getDni() + "] ";
-            }
-            JOptionPane.showMessageDialog(null, persona, "Persona",
-					JOptionPane.INFORMATION_MESSAGE);
+                
+            }if(aux!=null)
+            persona = aux.persona;
         }
-        else
-        	JOptionPane.showMessageDialog(null, "No existe la posición especificada", "Error",
-					JOptionPane.ERROR_MESSAGE);
+        return persona;
     }
 
 	/**
@@ -159,24 +149,29 @@ public class ListaPersonas {
 	 * Método que borra una persona en la posición indicada
 	 * @param pos
 	 */
-    public void borrar (int pos)
+    public boolean borrar (int pos)
     {
-        if (pos <= tamaño())    {
+    	boolean toret = false;
+        if (pos <= tamaño() && pos!=Utils.ENTERO_NULO)    {
             if (pos == 0) {
                 nodoInicio = nodoInicio.siguiente;
                 if (nodoInicio!=null)
                     nodoInicio.anterior=null;
+                toret=true;
             } else {
                 aux = nodoInicio;
-                for (int i = 1 ; i <= pos ; i++)
-                    aux = aux.siguiente;
-                Nodo prox = nodoInicio.siguiente;
-                prox=prox.siguiente;
-                aux.siguiente = prox;
-                if (prox!=null)
-                    prox.anterior=aux;
+                for (int i = 1 ; i <= pos-2 ; i++)
+                	aux = aux.siguiente;
+                Nodo prox = aux.siguiente;
+                aux.siguiente = prox.siguiente;
+                Nodo siguiente=prox.siguiente;
+                if (siguiente!=null)
+                    siguiente.anterior=aux;
+                toret=true;
             }
         }
+        
+        return toret;
     }
 
 	/**
@@ -212,7 +207,7 @@ public class ListaPersonas {
 	public boolean existeDNI(String dni) {
 		aux = nodoInicio;
 		while (aux != null) {
-			if (aux.persona.getDni().equals(dni))
+			if (aux.persona!=null && aux.persona.getDni().equals(dni))
 				return true;
 			aux = aux.siguiente;
 		}
@@ -227,14 +222,15 @@ public class ListaPersonas {
 	 */
 	public int obtenerPosicionDNI(String dni) {
 		aux = nodoInicio;
-		int pos = -1;
+		int pos = Utils.ENTERO_CERO;
 		boolean encontrado = false;
-		while (aux != null || encontrado) {
+		while (aux != null && !encontrado) {
 			if (aux.persona.getDni().equals(dni))
 				encontrado=true;
 			else
 				pos++;
 			aux = aux.siguiente;
+
 			
 		}
 		return pos;

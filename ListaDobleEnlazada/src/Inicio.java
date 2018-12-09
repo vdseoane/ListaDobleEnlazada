@@ -8,28 +8,25 @@ public class Inicio {
 	static int opcion = 0;
 	static int elemento = 0;
 	static int posicionEscogida = 0;
+	static Persona persona;
 	static ListaPersonas listaPersonas = new ListaPersonas();
 	static JTextField nombre = new JTextField();
 	static JTextField apellido1 = new JTextField();
 	static JTextField apellido2 = new JTextField();
 	static JTextField dni = new JTextField();
 	static JTextField pos = new JTextField();
+	static JTextField opcionMenu = new JTextField();
 	static Object[] mensaje = { "Nombre: ", nombre, "Primer apellido: ", apellido1, "Segundo apellido: ", apellido2,
 			"DNI: ", dni };
 	static Object[] posicion = { "Posición ", pos };
 	static Object[] dniMensaje = { "DNI de la persona: ", dni };
+	static Object[] menu = { "1. Agregar persona al incio \n 2. Agregar persona al final \n	3. Agregar persona en posición específica \n 4. Mostrar lista de principio a fin \n 5. Mostrar lista de fin a inicio \n 6. Mostrar persona en posición específica \n 7. Buscar DNI \n 8. Borrar persona en posición específica \n 9. Vaciar listado \n 10. Salir \n", opcionMenu };
 
 	public static void main(String[] args) {
 
 		do {
 			try {
-				opcion = Integer.parseInt(JOptionPane.showInputDialog(null, "1. Agregar persona al incio \n"
-						+ "2. Agregar persona al final \n" + "3. Agregar persona en posición específica \n"
-						+ "4. Mostrar lista de principio a fin \n" + "5. Mostrar lista de fin a inicio \n"
-						+ "6. Mostrar persona en posición específica \n" + "7. Buscar DNI \n"
-						+ "8. Borrar persona en posición específica \n" + "9. Vaciar listado \n" + "10. Salir \n",
-						"Opciones", JOptionPane.QUESTION_MESSAGE));
-
+				opcion = iniciarMenu();
 				switch (opcion) {
 				case 1:
 					agregarPersona(Utils.INICIO, Utils.ENTERO_NULO);
@@ -60,14 +57,21 @@ public class Inicio {
 					break;
 				case 6:
 					posicionEscogida = pedirPosicion();
-					listaPersonas.obtenerDePosicion(posicionEscogida);
+					persona=listaPersonas.obtenerDePosicion(posicionEscogida);
+					 String texto = "[" + persona.getNombre() + " " + persona.getApellido1() + ", "
+								+ persona.getDni() + "] ";
+			            JOptionPane.showMessageDialog(null, texto, "Persona",
+								JOptionPane.INFORMATION_MESSAGE);
 					break;
 				case 7:
 					pedirDNI();
 					break;
 				case 8:
 					posicionEscogida = pedirPosicion();
-					listaPersonas.borrar(posicionEscogida);
+					Boolean borrado = listaPersonas.borrar(posicionEscogida);
+					if(borrado)
+						JOptionPane.showMessageDialog(null, "Se ha eliminado la persona indicada",
+								"Persona borrada", JOptionPane.INFORMATION_MESSAGE);
 					break;
 				case 9:
 					if (!listaPersonas.estaVacia()) {
@@ -91,15 +95,36 @@ public class Inicio {
 
 	}
 
+	/**
+	 * Inicializa el menu de opciones
+	 * @return
+	 */
+	private static int iniciarMenu() {
+		opcion = JOptionPane.showConfirmDialog(null, menu,
+				"Opciones", JOptionPane.OK_CANCEL_OPTION);
+		
+		if (opcion == JOptionPane.OK_OPTION) {
+			opcion = Integer.parseInt(opcionMenu.getText());
+		}else {
+			opcion= Utils.ENTERO_10;
+		}
+		
+		return opcion;
+	}
+
+	/**
+	 * Solicita una posición del listado, comprobando que sea válida
+	 * @return
+	 */
 	private static int pedirPosicion() {
-		int toret = 0;
+		int toret = Utils.ENTERO_NULO;
 		int tamaño = listaPersonas.tamaño();
 		opcion = JOptionPane.showConfirmDialog(null, posicion, "Añadir persona en posición determinada",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (opcion == JOptionPane.OK_OPTION) {
 			//Debemos obtener la posicion real de la lista
 			int posicionEscogida = Integer.parseInt(pos.getText()) -1;
-			if (posicionEscogida < 0 || posicionEscogida > listaPersonas.tamaño())
+			if (posicionEscogida < 0 || posicionEscogida > listaPersonas.tamaño()-1)
 				JOptionPane.showMessageDialog(null, "Posoción no valida. Escoga una posición entre 1 y " + tamaño,
 						"Posición no válida", JOptionPane.INFORMATION_MESSAGE);
 			else
@@ -108,9 +133,14 @@ public class Inicio {
 			JOptionPane.getRootFrame().dispose();
 		}
 
-		return toret-1;
+		return toret;
 	}
 
+	/**
+	 * Muestra el cuadro para incluir una nueva persona y llama al método correspondiente según la opción seleccionada
+	 * @param lugar
+	 * @param posicionEscogida
+	 */
 	private static void agregarPersona(int lugar, int posicionEscogida) {
 		opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir persona al inicio", JOptionPane.OK_CANCEL_OPTION);
 		if (opcion == JOptionPane.OK_OPTION) {
@@ -132,11 +162,18 @@ public class Inicio {
 
 	}
 
+	/**
+	 * Solicita a través de un diálogo el DNI a buscar
+	 */
 	private static void pedirDNI() {
 		opcion = JOptionPane.showConfirmDialog(null, dniMensaje, "Introduce un DNI", JOptionPane.OK_CANCEL_OPTION);
 		if (opcion == JOptionPane.OK_OPTION) {
 			if(listaPersonas.existeDNI(dni.getText())) {
-				listaPersonas.obtenerDePosicion(listaPersonas.obtenerPosicionDNI(dni.getText()));
+				persona = listaPersonas.obtenerDePosicion(listaPersonas.obtenerPosicionDNI(dni.getText()));
+				 String texto = "[" + persona.getNombre() + " " + persona.getApellido1() + ", "
+							+ persona.getDni() + "] ";
+		            JOptionPane.showMessageDialog(null, texto, "Persona",
+							JOptionPane.INFORMATION_MESSAGE);
 			}
 		}else {
 			JOptionPane.getRootFrame().dispose();
